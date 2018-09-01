@@ -152,6 +152,12 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			}
 		}
 
+		// if there are no landmarks in range, set weight to zero and go to next particle
+		if (predicted.size() == 0) {
+			particles[i].weight = 0;
+			break;
+		}
+
 		// transform observations to map frame
 		std::vector<LandmarkObs> transformed_observations;;
 		for (unsigned int j=0; j < observations.size(); j++) {
@@ -218,7 +224,7 @@ void ParticleFilter::resample() {
 	for (unsigned int i=0; i < particles.size(); i++) {
 		resampled_particles.push_back(particles[d(random_gen)]);
 	}
-	particles = resampled_particles;
+	particles = std::move(resampled_particles);
 }
 
 Particle ParticleFilter::SetAssociations(Particle& particle, const std::vector<int>& associations, 
